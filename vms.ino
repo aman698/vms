@@ -5,8 +5,8 @@
 #include "hardware/sync.h"
 #include "DMD_RGB.h"
 
-#define DISPLAYS_ACROSS 2   // 2 x 32x32 panels side by side = 64x32
-#define DISPLAYS_DOWN 1
+#define DISPLAYS_ACROSS 2   // 2 x 2 panels of 32x32 = 64x64
+#define DISPLAYS_DOWN 2
 #define ETHERNET_RST_PIN 24
 #define IMAGE_W (DISPLAYS_ACROSS * 32)
 #define IMAGE_H (DISPLAYS_DOWN * 32)
@@ -112,6 +112,7 @@ void setup() {
 
   PANEL.init();
   PANEL.setBrightness(100);  //8 255
+  // PANEL.setConnectScheme(CONNECT_ZIGZAG);  // uncomment if the bottom row of panels is mounted upside down
 
   multicore_launch_core1(core1_loop);
 }

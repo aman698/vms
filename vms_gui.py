@@ -11,8 +11,8 @@ from PIL import Image, ImageDraw, ImageTk
 
 from sender import fit_image, frame_from_image, send_frame
 
-DEFAULT_SIZE = (64, 32)   # 2 x 32x32 panels across, 1 down
-PREVIEW_MAX = (512, 256)  # largest preview size in screen pixels
+DEFAULT_SIZE = (64, 64)   # 2 x 2 panels of 32x32
+PREVIEW_MAX = (512, 384)  # largest preview size in screen pixels
 RESEND_MS = 1000          # keep-alive interval
 FILETYPES = [("Images", "*.png *.jpg *.jpeg *.bmp *.gif *.webp"), ("All files", "*.*")]
 OK, ERR = "#1a7f37", "#cf222e"
