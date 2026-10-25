@@ -11,26 +11,31 @@ from PIL import Image, ImageDraw, ImageTk
 
 from sender import fit_image, frame_from_image, send_frame
 
-PREVIEW = 256        # preview boxes are PREVIEW x PREVIEW screen pixels
-RESEND_MS = 1000     # keep-alive interval
+DEFAULT_SIZE = (64, 32)   # 2 x 32x32 panels across, 1 down
+PREVIEW_MAX = (512, 256)  # largest preview size in screen pixels
+RESEND_MS = 1000          # keep-alive interval
 FILETYPES = [("Images", "*.png *.jpg *.jpeg *.bmp *.gif *.webp"), ("All files", "*.*")]
 OK, ERR = "#1a7f37", "#cf222e"
+
+
+def preview_cell(w, h):
+    """Screen pixels per panel LED, so a w x h preview fits in PREVIEW_MAX."""
+    return max(1, min(PREVIEW_MAX[0] // w, PREVIEW_MAX[1] // h))
 
 
 def led_preview(img):
     """Draw the panel image as round LEDs, with 4-bit colour like the real panel."""
     w, h = img.size
-    cell = max(1, PREVIEW // max(w, h))
-    out = Image.new("RGB", (PREVIEW, PREVIEW), (0, 0, 0))
+    cell = preview_cell(w, h)
+    out = Image.new("RGB", (w * cell, h * cell), (0, 0, 0))
     draw = ImageDraw.Draw(out)
-    x0, y0 = (PREVIEW - w * cell) // 2, (PREVIEW - h * cell) // 2
     gap = 1 if cell >= 4 else 0
     px = img.load()
     for y in range(h):
         for x in range(w):
             r, g, b = (v & 0xF0 | v >> 4 for v in px[x, y])   # panel shows 4 bits per colour
             color = (r, g, b) if r or g or b else (24, 24, 24)  # unlit LEDs stay faintly visible
-            left, top = x0 + x * cell, y0 + y * cell
+            left, top = x * cell, y * cell
             draw.ellipse((left + gap, top + gap, left + cell - 1 - gap, top + cell - 1 - gap), fill=color)
     return out
 
@@ -53,8 +58,8 @@ class App:
         conn.grid(row=0, column=0, columnspan=2, sticky="w")
         self.ip = tk.StringVar(value="192.168.0.121")
         self.port = tk.StringVar(value="1000")
-        self.width = tk.StringVar(value="32")
-        self.height = tk.StringVar(value="32")
+        self.width = tk.StringVar(value=str(DEFAULT_SIZE[0]))
+        self.height = tk.StringVar(value=str(DEFAULT_SIZE[1]))
         ttk.Label(conn, text="Controller IP").pack(side="left")
         ttk.Entry(conn, textvariable=self.ip, width=15).pack(side="left", padx=(4, 12))
         ttk.Label(conn, text="Port").pack(side="left")
@@ -73,7 +78,8 @@ class App:
         entry.bind("<Return>", lambda e: self.load_preview())
         ttk.Button(pick, text="Browse...", command=self.browse).pack(side="left")
 
-        blank = Image.new("RGB", (PREVIEW, PREVIEW), (32, 32, 32))
+        cell = preview_cell(*DEFAULT_SIZE)
+        blank = Image.new("RGB", (DEFAULT_SIZE[0] * cell, DEFAULT_SIZE[1] * cell), (32, 32, 32))
         self.orig_img = ImageTk.PhotoImage(blank)
         self.panel_img = ImageTk.PhotoImage(blank)
         ttk.Label(main, text="Original").grid(row=2, column=0)
@@ -127,9 +133,11 @@ class App:
         size = self.panel_size()
         if size is None:
             return None
+        w, h = size
+        cell = preview_cell(w, h)
         try:
-            fitted = fit_image(path, *size)
-            orig = fit_image(path, PREVIEW, PREVIEW)
+            fitted = fit_image(path, w, h)
+            orig = fit_image(path, w * cell, h * cell)   # same shape as the panel
         except Exception as e:
             self.set_status(f"Could not open image: {e}", ERR)
             return None

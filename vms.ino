@@ -5,7 +5,7 @@
 #include "hardware/sync.h"
 #include "DMD_RGB.h"
 
-#define DISPLAYS_ACROSS 1
+#define DISPLAYS_ACROSS 2   // 2 x 32x32 panels side by side = 64x32
 #define DISPLAYS_DOWN 1
 #define ETHERNET_RST_PIN 24
 #define IMAGE_W (DISPLAYS_ACROSS * 32)

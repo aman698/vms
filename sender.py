@@ -70,7 +70,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("ip")
     p.add_argument("--port", type=int, default=1000)
-    p.add_argument("--width", type=int, default=32)
+    p.add_argument("--width", type=int, default=64)
     p.add_argument("--height", type=int, default=32)
     p.add_argument("--fps", type=float, default=30)
     p.add_argument("--image", help="send this image instead of the test pattern")

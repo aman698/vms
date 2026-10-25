@@ -12,7 +12,7 @@ The current image is re-sent every --refresh seconds, so the panel gets it back
 after a lost packet or a controller reboot.
 
 Usage:
-    python image_sender.py                         # 192.168.0.121:1000, 32x32
+    python image_sender.py                         # 192.168.0.121:1000, 64x32
     python image_sender.py --ip 192.168.0.122
 """
 import argparse
@@ -84,7 +84,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--ip", default="192.168.0.121")
     p.add_argument("--port", type=int, default=1000)
-    p.add_argument("--width", type=int, default=32)
+    p.add_argument("--width", type=int, default=64)
     p.add_argument("--height", type=int, default=32)
     p.add_argument("--folder", default=str(Path(__file__).parent / "images"))
     p.add_argument("--refresh", type=float, default=1.0, help="re-send interval in seconds, 0 = off")
